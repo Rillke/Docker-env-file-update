@@ -43,17 +43,9 @@ Note: Only the `<variable>=value` syntax, blank lines and comments are supported
 - Adds possibly unused/obsolete variables in a bottom section.
 - Because the whole file is rewritten each time, the template structure is restored. With `diff .env.example .env` changes to the default values from the template are easily spotted.
 
-## Useful snippets
-
-### Convert Docker `.env` file to bash-compatible `.env` file format
-
-```sh
-cat .env | sed -rn 's/(.+?)\=(.+)/\1="\2"/p' > .env.bash
-```
-
 ## Git: Self-update when checking out another version
 
-Git provides so-called hooks. The `post-checkout` hook script is executed by git after a new version is checked out (e.g. after a `git pull` or a `git checkout hash/tag/version`). This allows for keeping your `.env` file automatically up-to-date. Note that hooks are a local concept and do not become part of the repository, so install them in each clone of your repo you need them on.
+Git provides so-called hooks. The `post-checkout` hook script is executed by Git after a new version is checked out (e.g. after a `git pull` or a `git checkout hash/tag/version`). This allows for keeping your `.env` file automatically up-to-date. Note that hooks are a local concept and do not become part of the repository, so install them in each clone of your repo you need them on.
 
 Example:
 
@@ -78,4 +70,13 @@ fi
 
 2. Put a copy of `prettify-env.sh` into your repository (example is for the working directory but it should also work in the hidden `.git` directory if you adjust the paths in `.git/hooks/post-checkout` accordingly).
 3. Test, however note that `prettify-env.sh` will remove all customized comments from `.env`. If you do not wish this behaviour, use `update-env.sh` instead. For instance, try `git checkout master`
+
+
+## Snippets
+
+### Convert Docker `.env` file to bash-compatible `.env` file format
+
+```sh
+cat .env | sed -rn 's/(.+?)\=(.+)/\1="\2"/p' > .env.bash
+```
 

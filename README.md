@@ -56,6 +56,7 @@ cat .env | sed -rn 's/(.+?)\=(.+)/\1="\2"/p' > .env.bash
 Git provides so-called hooks. The `post-checkout` hook script is executed by git after a new version is checked out (e.g. after a `git pull` or a `git checkout hash/tag/version`). This allows for keeping your `.env` file automatically up-to-date. Note that hooks are a local concept and do not become part of the repository, so install them in each clone of your repo you need them on.
 
 Example:
+
 0. Assuming that your template file's name is `.env.example` and your env file's name is `.env`.
 1. In your repository create a `.git/hooks/post-checkout` file with the follwing contents:
 

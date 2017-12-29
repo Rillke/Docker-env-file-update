@@ -45,6 +45,13 @@ Note: Only the `<variable>=value` syntax, blank lines and comments are supported
 
 ## Git: Self-update when checking out another version
 
+### Using an installation script
+```sh
+wget -qO- https://raw.githubusercontent.com/Rillke/Docker-env-file-update/master/install.sh | bash
+```
+
+### Step by step
+
 Git provides so-called hooks. The `post-checkout` hook script is executed by Git after a new version is checked out (e.g. after a `git pull` or a `git checkout hash/tag/version`). This allows for keeping your `.env` file automatically up-to-date. Note that hooks are a local concept and do not become part of the repository, so install them in each clone of your repo you need them on.
 
 Example:

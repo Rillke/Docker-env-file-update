@@ -16,10 +16,19 @@ echo "Scanning the environment ..."
 
 set +e
 BASH_VERSION="$(bash -c 'echo $BASH_VERSION')"
+GIT_VERSION="$(git --version)"
+GIT_DIR="$(git rev-parse --git-dir)"
 GIT_HOOKS_PATH="$(git config core.hooksPath)"
-GIT_HOOKS_PATH="${GIT_HOOKS_PATH:-hooks}"
-GIT_REPO_ROOT="$(git rev-parse --git-dir)"
-GIT_POST_CHECKOUT_HOOK=$GIT_REPO_ROOT/$GIT_HOOKS_PATH/post-checkout
+GIT_HOOKS_PATH_REL=$GIT_HOOKS_PATH
+if [ -z "$GIT_HOOKS_PATH" ] ; then
+  GIT_HOOKS_PATH="$GIT_DIR/hooks"
+else
+  # Expand strings like $GIT_DIR/hooks
+  # but GIT_HOOKS_PATH can be also relative to where
+  # the hook runs or an absolute path
+  GIT_HOOKS_PATH=$(eval echo $GIT_HOOKS_PATH)
+fi
+GIT_POST_CHECKOUT_HOOK=$GIT_HOOKS_PATH/post-checkout
 [ -f "$GIT_POST_CHECKOUT_HOOK" ]
 GIT_POST_CHECKOUT_HOOK_EXISTS=$?
 ENV_FILE=""
@@ -47,23 +56,30 @@ if [ -f "EXAMPLE.env" ] ; then
 fi
 set -e
 
-if [ ! -d "$GIT_REPO_ROOT" ]; then
+if [ ! -d "$GIT_DIR" ]; then
   echo "FATAL: Current directory is not a Git repository."
   echo "Exit."
   exit 1
 fi
 
 echo "INFO: You are running Bash version $BASH_VERSION."
-echo "Bash version >= 4 is required by this script."
-echo "Installing to $GIT_REPO_ROOT/$GIT_HOOKS_PATH/post-checkout"
+echo "INFO: Bash version >= 4 is required by this script."
+if [[ "$GIT_HOOKS_PATH_REL" != "" ]] ; then
+  echo "INFO: $GIT_VERSION detected. If you are running"
+  echo "INFO: a version < 2.9 and have the core.hooksPath"
+  echo "INFO: configuration set, changes might not have the"
+  echo "INFO: effect desired."
+fi
+echo "INFO: Installing to $GIT_HOOKS_PATH/post-checkout"
 if (( GIT_POST_CHECKOUT_HOOK_EXISTS == 0 )); then
   echo "File will amended"
 else
   echo "File will be created"
+  mkdir -p $GIT_HOOKS_PATH
 fi
 
 echo "Which file would you like to keep updated by .env updater?"
-echo -n "[$ENV_FILE]"
+echo -n "[$ENV_FILE]: "
 read NEW_ENV_FILE < /dev/tty
 ENV_FILE="${NEW_ENV_FILE:-$ENV_FILE}"
 
@@ -73,7 +89,7 @@ if [ ! -f "$ENV_FILE" ] ; then
 fi
 
 echo "Which file should serve as a template?"
-echo -n "[$TEMPLATE_ENV]"
+echo -n "[$TEMPLATE_ENV]: "
 read NEW_TEMPLATE_ENV < /dev/tty
 TEMPLATE_ENV="${NEW_TEMPLATE_ENV:-$TEMPLATE_ENV}"
 
@@ -88,7 +104,7 @@ echo "$ENV_FILE file (update-env.sh)"
 echo "and one that rewrites the entire file each time from"
 echo "its template $TEMPLATE_ENV (prettify-env.sh)."
 echo "Which one would you like to install?"
-echo -n "[1: update-env.sh, 2: prettify-env.sh]:"
+echo -n "[1: update-env.sh, 2: prettify-env.sh]: "
 read SCRIPT < /dev/tty
 
 if [[ "$SCRIPT" == "1" ]] ; then
@@ -100,15 +116,15 @@ elif [[ "$SCRIPT" == "" ]] ; then
 fi
 
 echo "Obtaining script ..."
-wget -O "$GIT_REPO_ROOT/$SCRIPT" "$MIRROR_BASE/$SCRIPT"
-chmod +x "$GIT_REPO_ROOT/$SCRIPT"
+wget -O "$GIT_HOOKS_PATH/$SCRIPT" "$MIRROR_BASE/$SCRIPT"
+chmod +x "$GIT_HOOKS_PATH/$SCRIPT"
 
 echo "Installing ..."
 if [ ! -f "$GIT_POST_CHECKOUT_HOOK" ] ; then
   echo "#!/bin/sh" > $GIT_POST_CHECKOUT_HOOK
 fi
 
-SCRIPT_ABSOLUTE="$(cd "$(dirname "$GIT_REPO_ROOT/$SCRIPT")"; pwd)/$(basename "$GIT_REPO_ROOT/$SCRIPT")"
+SCRIPT_ABSOLUTE="$(cd "$(dirname "$GIT_HOOKS_PATH/$SCRIPT")"; pwd)/$(basename "$GIT_HOOKS_PATH/$SCRIPT")"
 echo "$SCRIPT_ABSOLUTE '$TEMPLATE_ENV' '$ENV_FILE'" >> $GIT_POST_CHECKOUT_HOOK
 chmod +x "$GIT_POST_CHECKOUT_HOOK"
 echo "Done."

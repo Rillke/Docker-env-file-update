@@ -42,10 +42,20 @@ HELP=""
 declare -A VARS_IN_FILE_TO_UPDATE
 declare -A VARS_IN_TEMPLATE_FILE
 
+function extractKey {
+  K="$1"
+  NEW_K="${K%=*}"
+  while [[ "$K" != "$NEW_K" ]]; do
+    K=$NEW_K
+    NEW_K="${K%=*}"
+  done
+  echo "$K"
+}
+
 # Collect variables currently in use
 while read f; do
   if [[ "$f" != \#* ]] && [[ "$f" == *\=* ]] ; then
-    K="${f%=*}"
+    K="$(extractKey $f)"
     V="${f#*=}"
     VARS_IN_FILE_TO_UPDATE["$K"]="$V"
   fi
@@ -61,7 +71,7 @@ while read e; do
       HELP="$e"
     fi
   elif [[ "$e" == *\=* ]] ; then
-    K="${e%=*}"
+    K="$(extractKey $e)"
     V="${e#*=}"
     VARS_IN_TEMPLATE_FILE["$K"]="$V"
     if ! test "${VARS_IN_FILE_TO_UPDATE[${K}]+isset}"; then

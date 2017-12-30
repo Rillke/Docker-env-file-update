@@ -104,7 +104,8 @@ echo "$ENV_FILE file (update-env.sh)"
 echo "and one that rewrites the entire file each time from"
 echo "its template $TEMPLATE_ENV (prettify-env.sh)."
 echo "Which one would you like to install?"
-echo -n "[1: update-env.sh, 2: prettify-env.sh]: "
+echo "1: update-env.sh, 2: prettify-env.sh"
+echo -n "[1]: "
 read SCRIPT < /dev/tty
 
 if [[ "$SCRIPT" == "1" ]] ; then

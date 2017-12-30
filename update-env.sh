@@ -16,6 +16,10 @@ echo "https://github.com/Rillke/Docker-env-file-update"
 if [ $# -eq 0 ] || [ $1 = "-h" ] || [ $1 = "--help" ] ; then
   echo "After deployments, Docker .env files may need updates."
   echo "This updater automates that process."
+  echo ""
+  echo "If you wish a guided installation into any local Git repository as a"
+  echo "Git hook, run:"
+  echo "wget -qO- https://raw.githubusercontent.com/Rillke/Docker-env-file-update/master/install.sh | bash"
 fi
 
 if [ $# -ne 2 ] ; then
@@ -99,5 +103,5 @@ do
   fi
 done
 
-echo "Done."
+echo "Done updating $2."
 

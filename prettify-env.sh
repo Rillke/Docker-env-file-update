@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# Reformat a Docker .env file according to a example/template file
-# More information on docker .env files:
+# Reformat a Docker .env file according to an example/template file
+# Information about docker .env files:
 #    https://docs.docker.com/compose/env-file/
 #
 # Reads environment variables from a target file, formats them
 # as in the template file supplied and finally replaces the
 # target file with the formatted file.
 #
-# Note: Any custom comments are lost after running this script
+# CAUTION: Any custom comments are lost after running this script
 #
 # Usage:
 #   ./update-env.sh template-file file-to-beautify
@@ -20,17 +20,20 @@ echo ".env file prettifier"
 echo "https://github.com/Rillke/Docker-env-file-update"
 
 if [ $# -eq 0 ] || [ $1 = "-h" ] || [ $1 = "--help" ] ; then
-  echo "Reformat a Docker .env file according to a example/template file."
-  echo "More information on docker .env files:"
+  echo "Reformat a Docker .env file according to an example/template file."
+  echo "More information about docker .env files:"
   echo "   https://docs.docker.com/compose/env-file/"
   echo ""
   echo "When contineously adding environment variables to a Docker .env file"
   echo "that file can become hard to read. .env file prettifier formats the"
   echo "target file according to a template."
   echo ""
-  echo "Note: Any custom comments in <file-to-beautify> are lost after"
+  echo "CAUTION: Any custom comments in <file-to-beautify> are lost after"
   echo "running this script"
   echo ""
+  echo "If you wish a guided installation into any local Git repository as a"
+  echo "Git hook, run:"
+  echo "wget -qO- https://raw.githubusercontent.com/Rillke/Docker-env-file-update/master/install.sh | bash"
 fi
 
 if [ $# -ne 2 ] ; then
@@ -53,8 +56,10 @@ then
         exit 1
 fi
 
+HELP=""
 declare -A VARS_IN_FILE_TO_UPDATE
 declare -A VARS_IN_TEMPLATE_FILE
+
 echo "Creating a temporary file ..."
 tmp_file=$(mktemp)
 
@@ -124,5 +129,5 @@ done
 
 mv ${tmp_file} $2
 
-echo "Done."
+echo "Done updating $2."
 

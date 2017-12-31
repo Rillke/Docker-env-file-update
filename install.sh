@@ -72,6 +72,13 @@ if [[ "$GIT_HOOKS_PATH_REL" != "" ]] ; then
 fi
 echo "INFO: Installing to $GIT_HOOKS_PATH/post-checkout"
 if (( GIT_POST_CHECKOUT_HOOK_EXISTS == 0 )); then
+  if [ -x "$(command -v grep)" ] ; then
+    if grep -q -e "prettify-env.sh" -e "update-env.sh" "$GIT_HOOKS_PATH/post-checkout" ; then
+      echo ".env file updater seems already being installed there."
+      echo "Please uninstall prior to re-installing. Exit."
+      exit 1
+    fi
+  fi
   echo "File will amended"
 else
   echo "File will be created"
@@ -122,10 +129,21 @@ chmod +x "$GIT_HOOKS_PATH/$SCRIPT"
 
 echo "Installing ..."
 if [ ! -f "$GIT_POST_CHECKOUT_HOOK" ] ; then
-  echo "#!/bin/sh" > $GIT_POST_CHECKOUT_HOOK
+cat >$GIT_POST_CHECKOUT_HOOK <<EOL
+#!/bin/sh
+#
+# After you run a successful git checkout, the post-checkout hook runs;
+# you can use it to set up your working directory properly for your
+# project environment. This may mean moving in large binary files that
+# you don’t want source controlled, auto-generating documentation, or
+# something along those lines.
+EOL
 fi
 
 SCRIPT_ABSOLUTE="$(cd "$(dirname "$GIT_HOOKS_PATH/$SCRIPT")"; pwd)/$(basename "$GIT_HOOKS_PATH/$SCRIPT")"
+echo "" >> $GIT_POST_CHECKOUT_HOOK
+echo "# https://github.com/Rillke/Docker-env-file-update" >> $GIT_POST_CHECKOUT_HOOK
+echo "# Whenever checking out a different version, make sure, .env files are up-to-date" >> $GIT_POST_CHECKOUT_HOOK
 echo "$SCRIPT_ABSOLUTE '$TEMPLATE_ENV' '$ENV_FILE'" >> $GIT_POST_CHECKOUT_HOOK
 chmod +x "$GIT_POST_CHECKOUT_HOOK"
 echo "Done."

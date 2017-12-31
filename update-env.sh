@@ -67,7 +67,7 @@ done <"$2"
 
 # Check for new variables
 echo "Checking for new variables ..."
-while read e; do
+while read -u 3 e; do
   if [[ "$e" == \#* ]] ; then
     if [ -n "$HELP" ] ; then
       HELP="$HELP\n$e"
@@ -85,7 +85,7 @@ while read e; do
         echo -e "$HELP"
       fi
       echo -n "New value for $K [$V]="
-      read NEW_V < /dev/tty
+      read NEW_V
       NEW_V="${NEW_V:-$V}"
       echo "# Added by $USER on `date`" >> $2
       echo -e "$HELP" >> $2
@@ -93,7 +93,7 @@ while read e; do
     fi
     HELP=""
   fi
-done <"$1"
+done 3<"$1"
 
 echo "Checking for obsolete variables ..."
 for K in "${!VARS_IN_FILE_TO_UPDATE[@]}"

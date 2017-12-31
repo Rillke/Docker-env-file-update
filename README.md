@@ -1,4 +1,4 @@
-# Update scripts for docker(-compose) env files
+# Update scripts for docker(-compose) env files [![Build Status](https://travis-ci.org/Rillke/Docker-env-file-update.svg?branch=master)](https://travis-ci.org/Rillke/Docker-env-file-update)
 
 Supplying environment variables through files is a convenient way to manage a larger number of configuration options applied through environment variables. Both, [docker](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e-env-env-file) and [docker-compose](https://docs.docker.com/compose/env-file/) support reading environment variables from a file.
 

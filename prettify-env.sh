@@ -85,7 +85,7 @@ done <"$2"
 
 # Write prettified file
 echo "Writing prettified file ..."
-while read e; do
+while read -u 3 e; do
   if [[ "$e" == \#* ]] ; then
     if [ -n "$HELP" ] ; then
       HELP="$HELP\n$e"
@@ -104,7 +104,7 @@ while read e; do
         echo -e "$HELP"
       fi
       echo -n "New value for $K [$V]="
-      read NEW_V < /dev/tty
+      read NEW_V
       NEW_V="${NEW_V:-$V}"
       echo "$K=$NEW_V" >> ${tmp_file}
     else
@@ -115,7 +115,7 @@ while read e; do
   if [[ "$e" != *\=* ]] || [[ "$e" == \#* ]] ; then
     echo "$e" >> ${tmp_file}
   fi
-done <"$1"
+done 3<"$1"
 
 echo "Checking for obsolete variables ..."
 echo "" >> ${tmp_file}

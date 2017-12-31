@@ -18,6 +18,7 @@ set +e
 BASH_VERSION="$(bash -c 'echo $BASH_VERSION')"
 GIT_VERSION="$(git --version)"
 GIT_DIR="$(git rev-parse --git-dir)"
+GIT_WORKING_DIR="$(git rev-parse --show-toplevel)"
 GIT_HOOKS_PATH="$(git config core.hooksPath)"
 GIT_HOOKS_PATH_REL=$GIT_HOOKS_PATH
 if [ -z "$GIT_HOOKS_PATH" ] ; then
@@ -32,26 +33,26 @@ GIT_POST_CHECKOUT_HOOK=$GIT_HOOKS_PATH/post-checkout
 [ -f "$GIT_POST_CHECKOUT_HOOK" ]
 GIT_POST_CHECKOUT_HOOK_EXISTS=$?
 ENV_FILE=""
-if [ -f ".env" ] ; then
+if [ -f "$GIT_WORKING_DIR/.env" ] ; then
   ENV_FILE=".env"
 fi
 TEMPLATE_ENV=""
-if [ -f ".env.example" ] ; then
+if [ -f "$GIT_WORKING_DIR/.env.example" ] ; then
   TEMPLATE_ENV=".env.example"
 fi
-if [ -f ".example.env" ] ; then
+if [ -f "$GIT_WORKING_DIR/.example.env" ] ; then
   TEMPLATE_ENV=".example.env"
 fi
-if [ -f ".env.EXAMPLE" ] ; then
+if [ -f "$GIT_WORKING_DIR/.env.EXAMPLE" ] ; then
   TEMPLATE_ENV=".env.EXAMPLE"
 fi
-if [ -f "env.example" ] ; then
+if [ -f "$GIT_WORKING_DIR/env.example" ] ; then
   TEMPLATE_ENV="env.example"
 fi
-if [ -f "example.env" ] ; then
+if [ -f "$GIT_WORKING_DIR/example.env" ] ; then
   TEMPLATE_ENV="example.env"
 fi
-if [ -f "EXAMPLE.env" ] ; then
+if [ -f "$GIT_WORKING_DIR/EXAMPLE.env" ] ; then
   TEMPLATE_ENV="EXAMPLE.env"
 fi
 set -e
@@ -87,21 +88,21 @@ fi
 
 echo "Which file would you like to keep updated by .env updater?"
 echo -n "[$ENV_FILE]: "
-read NEW_ENV_FILE < /dev/tty
+read NEW_ENV_FILE
 ENV_FILE="${NEW_ENV_FILE:-$ENV_FILE}"
 
-if [ ! -f "$ENV_FILE" ] ; then
-  echo "$ENV_FILE does not exist. Exit."
+if [ ! -f "$GIT_WORKING_DIR/$ENV_FILE" ] ; then
+  echo "$GIT_WORKING_DIR/$ENV_FILE does not exist. Exit."
   exit 1
 fi
 
 echo "Which file should serve as a template?"
 echo -n "[$TEMPLATE_ENV]: "
-read NEW_TEMPLATE_ENV < /dev/tty
+read NEW_TEMPLATE_ENV
 TEMPLATE_ENV="${NEW_TEMPLATE_ENV:-$TEMPLATE_ENV}"
 
-if [ ! -f "$TEMPLATE_ENV" ] ; then
-  echo "$TEMPLATE_ENV does not exist. Exit."
+if [ ! -f "$GIT_WORKING_DIR/$TEMPLATE_ENV" ] ; then
+  echo "$GIT_WORKING_DIR/$TEMPLATE_ENV does not exist. Exit."
   exit 1
 fi
 
@@ -113,7 +114,7 @@ echo "its template $TEMPLATE_ENV (prettify-env.sh)."
 echo "Which one would you like to install?"
 echo "1: update-env.sh, 2: prettify-env.sh"
 echo -n "[1]: "
-read SCRIPT < /dev/tty
+read SCRIPT
 
 if [[ "$SCRIPT" == "1" ]] ; then
   SCRIPT="update-env.sh"

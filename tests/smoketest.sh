@@ -24,9 +24,9 @@ echo "Testing installation script"
 set +e
 uninstall
 set -e
-../install.sh < install-input-1
+../install.sh "test_run" < install-input-1
 uninstall
-../install.sh < install-input-2
+../install.sh "test_run" < install-input-2
 uninstall
 
 # Test update-env

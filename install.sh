@@ -87,7 +87,11 @@ else
 fi
 
 echo "Which file would you like to keep updated by .env updater?"
-read -e -p "File to keep updated: " -i "$ENV_FILE" NEW_ENV_FILE
+if [[ "$1" != "test_run" ]]; then
+  read -e -p "File to keep updated: " -i "$ENV_FILE" NEW_ENV_FILE </dev/tty
+else
+  read -e -p "File to keep updated: " -i "$ENV_FILE" NEW_ENV_FILE
+fi
 ENV_FILE="${NEW_ENV_FILE:-$ENV_FILE}"
 
 if [ ! -f "$GIT_WORKING_DIR/$ENV_FILE" ] ; then
@@ -96,7 +100,11 @@ if [ ! -f "$GIT_WORKING_DIR/$ENV_FILE" ] ; then
 fi
 
 echo "Which file should serve as a template?"
-read -e -p "Template: " -i "$TEMPLATE_ENV" NEW_TEMPLATE_ENV
+if [[ "$1" != "test_run" ]]; then
+  read -e -p "Template: " -i "$TEMPLATE_ENV" NEW_TEMPLATE_ENV </dev/tty
+else
+  read -e -p "Template: " -i "$TEMPLATE_ENV" NEW_TEMPLATE_ENV
+fi
 TEMPLATE_ENV="${NEW_TEMPLATE_ENV:-$TEMPLATE_ENV}"
 
 if [ ! -f "$GIT_WORKING_DIR/$TEMPLATE_ENV" ] ; then
@@ -111,7 +119,11 @@ echo "and one that rewrites the entire file each time from"
 echo "its template $TEMPLATE_ENV (prettify-env.sh)."
 echo "Which one would you like to install?"
 echo "1: update-env.sh, 2: prettify-env.sh"
-read -e -p "Install: " -i "1" SCRIPT
+if [[ "$1" != "test_run" ]]; then
+  read -e -p "Install: " -i "1" SCRIPT </dev/tty
+else
+  read -e -p "Install: " -i "1" SCRIPT
+fi
 
 if [[ "$SCRIPT" == "1" ]] ; then
   SCRIPT="update-env.sh"

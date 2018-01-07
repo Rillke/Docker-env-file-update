@@ -82,6 +82,9 @@ fi
 2. Put a copy of `prettify-env.sh` into your repository (example is for the working directory but it should also work in the hidden `.git` directory if you adjust the paths in `.git/hooks/post-checkout` accordingly).
 3. Test, however note that `prettify-env.sh` will remove all customized comments from `.env`. If you do not wish this behaviour, use `update-env.sh` instead. For instance, try `git checkout master`
 
+### Uninstallation
+
+Remove the line invoking the script from `post-checkout`, or if this is the only command invoked, delete the `post-checkout` file entirely. By default, you can find the `post-checkout` hook file under `.git/hooks`. If the file does not exist, run the installation script again (abort it with `Ctrl`+`C` if necessary) and it will tell you where your `post-checkout` hook file is located.
 
 ## Snippets
 

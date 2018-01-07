@@ -84,9 +84,7 @@ while read -u 3 e; do
       if [ -n "$HELP" ] ; then
         echo -e "$HELP"
       fi
-      echo -n "New value for $K [$V]="
-      read NEW_V
-      NEW_V="${NEW_V:-$V}"
+      read -e -p "New value for $K =" -i "$V" NEW_V
       echo "# Added by $USER on `date`" >> $2
       echo -e "$HELP" >> $2
       echo "$K=$NEW_V" >> $2

@@ -87,8 +87,7 @@ else
 fi
 
 echo "Which file would you like to keep updated by .env updater?"
-echo -n "[$ENV_FILE]: "
-read NEW_ENV_FILE
+read -e -p "File to keep updated: " -i "$ENV_FILE" NEW_ENV_FILE
 ENV_FILE="${NEW_ENV_FILE:-$ENV_FILE}"
 
 if [ ! -f "$GIT_WORKING_DIR/$ENV_FILE" ] ; then
@@ -97,8 +96,7 @@ if [ ! -f "$GIT_WORKING_DIR/$ENV_FILE" ] ; then
 fi
 
 echo "Which file should serve as a template?"
-echo -n "[$TEMPLATE_ENV]: "
-read NEW_TEMPLATE_ENV
+read -e -p "Template: " -i "$TEMPLATE_ENV" NEW_TEMPLATE_ENV
 TEMPLATE_ENV="${NEW_TEMPLATE_ENV:-$TEMPLATE_ENV}"
 
 if [ ! -f "$GIT_WORKING_DIR/$TEMPLATE_ENV" ] ; then
@@ -113,8 +111,7 @@ echo "and one that rewrites the entire file each time from"
 echo "its template $TEMPLATE_ENV (prettify-env.sh)."
 echo "Which one would you like to install?"
 echo "1: update-env.sh, 2: prettify-env.sh"
-echo -n "[1]: "
-read SCRIPT
+read -e -p "Install: " -i "1" SCRIPT
 
 if [[ "$SCRIPT" == "1" ]] ; then
   SCRIPT="update-env.sh"
@@ -145,7 +142,10 @@ SCRIPT_ABSOLUTE="$(cd "$(dirname "$GIT_HOOKS_PATH/$SCRIPT")"; pwd)/$(basename "$
 echo "" >> $GIT_POST_CHECKOUT_HOOK
 echo "# https://github.com/Rillke/Docker-env-file-update" >> $GIT_POST_CHECKOUT_HOOK
 echo "# Whenever checking out a different version, make sure, .env files are up-to-date" >> $GIT_POST_CHECKOUT_HOOK
+echo "# Fixing Git not allowing input from STDIN: https://stackoverflow.com/a/10015707/2683737" >> $GIT_POST_CHECKOUT_HOOK
+echo "exec < /dev/tty" >> $GIT_POST_CHECKOUT_HOOK
 echo "$SCRIPT_ABSOLUTE '$TEMPLATE_ENV' '$ENV_FILE'" >> $GIT_POST_CHECKOUT_HOOK
+echo "exec <&-" >> $GIT_POST_CHECKOUT_HOOK
 chmod +x "$GIT_POST_CHECKOUT_HOOK"
 echo "Done."
 

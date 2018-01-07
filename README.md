@@ -2,6 +2,8 @@
 
 Supplying environment variables through files is a convenient way to manage a larger number of configuration options applied through environment variables. Both, [docker](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e-env-env-file) and [docker-compose](https://docs.docker.com/compose/env-file/) support reading environment variables from a file.
 
+The update scripts are intended to be used during manual deployments and expect stdin being available for prompting for your input.
+
 ## Docker
 
 > You can also load the environment variables from a file.
@@ -28,7 +30,9 @@ Note: Only the `<variable>=value` syntax, blank lines and comments are supported
 
 ## Contents
 
-- Limitations: Might not handle literal `\n` in comments correctly. Please submit merge requests.
+- Limitations:
+    - Install script will attempt attaching post-checkout hook to /dev/tty (Keyboard). This might break automated deployments. Do not use the script installer if your terminal is incompatible or if no keyboard device exists.
+    - Might not handle literal `\n` in comments correctly. Please submit merge requests.
 - Requirements: Bash version 4 support or higher
 
 ### update-env.sh

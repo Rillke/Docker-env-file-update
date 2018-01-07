@@ -103,9 +103,7 @@ while read -u 3 e; do
       if [ -n "$HELP" ] ; then
         echo -e "$HELP"
       fi
-      echo -n "New value for $K [$V]="
-      read NEW_V
-      NEW_V="${NEW_V:-$V}"
+      read -e -p "New value for $K =" -i "$V" NEW_V
       echo "$K=$NEW_V" >> ${tmp_file}
     else
       echo "$K=${VARS_IN_FILE_TO_UPDATE[${K}]}" >> ${tmp_file}

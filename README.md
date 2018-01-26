@@ -91,6 +91,13 @@ Remove the line invoking the script from `post-checkout`, or if this is the only
 ### Convert Docker `.env` file to bash-compatible `.env` file format
 
 ```sh
-cat .env | sed -rn 's/(.+?)\=(.+)/\1="\2"/p' > .env.bash
+# Load environment
+eval $( cat .env | grep -v ^# | sed -r 's/(["\\])/\\\1/g' | sed -rn 's/(.+?)\=(.+)/\1="\2"/p' )
+# Store into file
+cat .env | grep -v ^# | sed -r 's/(["\\])/\\\1/g' | sed -rn 's/(.+?)\=(.+)/\1="\2"/p' > .bash.env
 ```
 
+1. Read `.env` file
+2. Strip comments
+3. Escape double quotes (`"`) and backslashes (`\`)
+4. Enclose values in double quotes

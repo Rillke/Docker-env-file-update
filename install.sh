@@ -30,8 +30,11 @@ else
   GIT_HOOKS_PATH=$(eval echo $GIT_HOOKS_PATH)
 fi
 GIT_POST_CHECKOUT_HOOK=$GIT_HOOKS_PATH/post-checkout
+GIT_POST_MERGE_HOOK=$GIT_HOOKS_PATH/post-merge
 [ -f "$GIT_POST_CHECKOUT_HOOK" ]
 GIT_POST_CHECKOUT_HOOK_EXISTS=$?
+[ -f "$GIT_POST_POST_MERGE_HOOK" ]
+GIT_POST_MERGE_HOOK_EXISTS=$?
 ENV_FILE=""
 if [ -f "$GIT_WORKING_DIR/.env" ] ; then
   ENV_FILE=".env"
@@ -71,18 +74,31 @@ if [[ "$GIT_HOOKS_PATH_REL" != "" ]] ; then
   echo "INFO: configuration set, changes might not have the"
   echo "INFO: effect desired."
 fi
-echo "INFO: Installing to $GIT_HOOKS_PATH/post-checkout"
-if (( GIT_POST_CHECKOUT_HOOK_EXISTS == 0 )); then
+echo "INFO: Installing to $GIT_HOOKS_PATH/post-checkout and /post-merge"
+if (( GIT_POST_CHECKOUT_HOOK_EXISTS == 0 )) ; then
   if [ -x "$(command -v grep)" ] ; then
     if grep -q -e "prettify-env.sh" -e "update-env.sh" "$GIT_HOOKS_PATH/post-checkout" ; then
-      echo ".env file updater seems already being installed there."
+      echo ".env file updater seems already being installed in post-checkout hook."
       echo "Please uninstall prior to re-installing. Exit."
       exit 1
     fi
   fi
-  echo "File will amended"
+  echo "File post-checkout will amended"
 else
-  echo "File will be created"
+  echo "File post-checkout will be created"
+  mkdir -p $GIT_HOOKS_PATH
+fi
+if (( GIT_POST_MERGE_HOOK_EXISTS == 0 )) ; then
+  if [ -x "$(command -v grep)" ] ; then
+    if grep -q -e "prettify-env.sh" -e "update-env.sh" "$GIT_HOOKS_PATH/post-merge" ; then
+      echo ".env file updater seems already being installed in post-merge hook."
+      echo "Please uninstall prior to re-installing. Exit."
+      exit 1
+    fi
+  fi
+  echo "File post-merge will amended"
+else
+  echo "File post-merge will be created"
   mkdir -p $GIT_HOOKS_PATH
 fi
 
@@ -138,8 +154,11 @@ wget -O "$GIT_HOOKS_PATH/$SCRIPT" "$MIRROR_BASE/$SCRIPT"
 chmod +x "$GIT_HOOKS_PATH/$SCRIPT"
 
 echo "Installing ..."
-if [ ! -f "$GIT_POST_CHECKOUT_HOOK" ] ; then
-cat >$GIT_POST_CHECKOUT_HOOK <<EOL
+
+for HOOK_SCRIPT in "$GIT_POST_CHECKOUT_HOOK" "$GIT_POST_MERGE_HOOK"; do
+  echo "Doing $HOOK_SCRIPT ..."
+  if [ ! -f "$HOOK_SCRIPT" ] ; then
+  cat >$HOOK_SCRIPT <<EOL
 #!/bin/sh
 #
 # After you run a successful git checkout, the post-checkout hook runs;
@@ -148,16 +167,17 @@ cat >$GIT_POST_CHECKOUT_HOOK <<EOL
 # you don’t want source controlled, auto-generating documentation, or
 # something along those lines.
 EOL
-fi
+  fi
 
-SCRIPT_ABSOLUTE="$(cd "$(dirname "$GIT_HOOKS_PATH/$SCRIPT")"; pwd)/$(basename "$GIT_HOOKS_PATH/$SCRIPT")"
-echo "" >> $GIT_POST_CHECKOUT_HOOK
-echo "# https://github.com/Rillke/Docker-env-file-update" >> $GIT_POST_CHECKOUT_HOOK
-echo "# Whenever checking out a different version, make sure, .env files are up-to-date" >> $GIT_POST_CHECKOUT_HOOK
-echo "# Fixing Git not allowing input from STDIN: https://stackoverflow.com/a/10015707/2683737" >> $GIT_POST_CHECKOUT_HOOK
-echo "exec < /dev/tty" >> $GIT_POST_CHECKOUT_HOOK
-echo "$SCRIPT_ABSOLUTE '$TEMPLATE_ENV' '$ENV_FILE'" >> $GIT_POST_CHECKOUT_HOOK
-echo "exec <&-" >> $GIT_POST_CHECKOUT_HOOK
-chmod +x "$GIT_POST_CHECKOUT_HOOK"
+  SCRIPT_ABSOLUTE="$(cd "$(dirname "$GIT_HOOKS_PATH/$SCRIPT")"; pwd)/$(basename "$GIT_HOOKS_PATH/$SCRIPT")"
+  echo "" >> $HOOK_SCRIPT
+  echo "# https://github.com/Rillke/Docker-env-file-update" >> $HOOK_SCRIPT
+  echo "# Whenever checking out a different version, make sure, .env files are up-to-date" >> $HOOK_SCRIPT
+  echo "# Fixing Git not allowing input from STDIN: https://stackoverflow.com/a/10015707/2683737" >> $HOOK_SCRIPT
+  echo "exec < /dev/tty" >> $HOOK_SCRIPT
+  echo "$SCRIPT_ABSOLUTE '$TEMPLATE_ENV' '$ENV_FILE'" >> $HOOK_SCRIPT
+  echo "exec <&-" >> $HOOK_SCRIPT
+  chmod +x "$HOOK_SCRIPT"
+done
 echo "Done."
 

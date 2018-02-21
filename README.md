@@ -92,9 +92,9 @@ Remove the line invoking the script from `post-checkout`, or if this is the only
 
 ```sh
 # Load environment
-eval $( cat .env | grep -v ^# | sed -r 's/(["\\])/\\\1/g' | sed -rn 's/(.+?)\=(.+)/\1="\2"/p' )
+eval $( cat .env | grep -v ^# | sed -r 's/(["\\])/\\\1/g' | sed -rn 's/([^\=]+)\=(.+)/\1="\2"/p' )
 # Store into file
-cat .env | grep -v ^# | sed -r 's/(["\\])/\\\1/g' | sed -rn 's/(.+?)\=(.+)/\1="\2"/p' > .bash.env
+cat .env | grep -v ^# | sed -r 's/(["\\])/\\\1/g' | sed -rn 's/([^\=]+)\=(.+)/\1="\2"/p' > .bash.env
 ```
 
 1. Read `.env` file
